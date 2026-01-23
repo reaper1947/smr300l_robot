@@ -1,0 +1,48 @@
+//canopen///////////////////////////////////////////////////////////////////////
+
+sudo ip link set can0 up type can bitrate 500000
+sudo ip link set up can0
+candump can0
+
+*note    cansend can0 000#NMT+(nodeID)
+         NMT----> 0x01 = start node
+            ----> 0x02 = stoped node
+            ----> 0x80 = pre start
+            ----> 0x81 = Reset node
+            ----> 0x82 = Reset Communication
+
+//Start///////////////////////////////////////////////////////////////////////
+
+ros2 launch sllidar_ros2 sllidar_t1_launch.py
+
+cd /home/next2/next_ros2/src/motor_driver/scripts
+python3 motor2.py
+
+cd /home/next2/next_ros2/src/motor_driver/scripts
+python3 odom2.py
+
+ros2 launch motor_driver rsp.launch.py
+
+ros2 run joint_state_publisher joint_state_publisher
+
+ros2 topic echo /odom --no-arr
+
+
+//map///////////////////////////////////////////////////////////////////////
+
+ros2 launch slam_toolbox online_async_launch.py slam_params_file:=./src/motor_driver/config/mapper_params_online_async.yaml use_sim_time:=false
+
+rviz2 -d src/nbt_bot/config/all.rviz
+
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+
+
+//Nav2//////////////////////////////////////////////////////////////////
+
+ros2 run nav2_map_server map_server --ros-args -p yaml_filename:=(name).yaml -p use_sim_time:=false
+ros2 run nav2_util lifecycle_bringup map_server
+
+ros2 launch nav2_bringup localization_launch.py map:=./(name).yaml use_sim_time:=false
+
+ros2 launch nav2_bringup navigation_launch.py use_sim_time:=false
+

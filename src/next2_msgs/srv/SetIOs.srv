@@ -1,0 +1,8 @@
+string cmd
+int64 arg0
+int64 arg1
+
+---
+
+bool success
+string text

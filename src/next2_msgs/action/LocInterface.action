@@ -1,0 +1,18 @@
+#goal         
+string command
+string arg
+geometry_msgs/Pose pose
+
+---
+#result
+actionlib_msgs/GoalStatus goal_status
+uint8 result
+uint8[] sequence
+string text
+
+---
+#feedback
+
+string text
+uint8[] sequence
+

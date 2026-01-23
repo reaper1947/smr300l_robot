@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/opt/ros/humble/include/**",
+        "/home/ter/Project_ros1_to_ros2/ROS2/src/laser_filters/include/**",
+        "/home/ter/Project_ros1_to_ros2/ROS2/src/nex2_jacking_ac_server/include/**",
+        "/home/ter/Project_ros1_to_ros2/ROS2/src/next2_io/include/**",
+        "/home/ter/Project_ros1_to_ros2/ROS2/src/next2_jacking_driver/include/**",
+        "/home/ter/Project_ros1_to_ros2/ROS2/src/next2_motor/include/**",
+        "/home/ter/Project_ros1_to_ros2/ROS2/src/next2_system/include/**",
+        "/home/ter/Project_ros1_to_ros2/ROS2/src/next2_teleop/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

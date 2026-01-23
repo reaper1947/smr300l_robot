@@ -1,0 +1,33 @@
+uint8 IDLE                      = 1
+uint8 START_MOTOR               = 2 # navigation
+uint8 SHUTDOWN_MOTOR            = 3
+uint8 SHUTDOWN_ROBOT            = 4
+uint8 EMERGENCY                 = 5
+uint8 FUCN_1                    = 6
+uint8 DOWN_STAIRS               = 7
+uint8 TABLET_LOSS_COMMU         = 8
+uint8 UVC_ON                    = 9
+uint8 UVC_OFF                   = 10
+uint8 READY_TO_START            = 11
+uint8 DOCKING_MODE_ON           = 12
+uint8 DOCKING_MODE_OFF          = 13
+uint8 ERROR_DEVICE              = 14
+uint8 CHARGER_ON                = 15
+uint8 CHARGER_OFF               = 16
+uint8 RESET                     = 17
+uint8 EMERGENCY_CASE_ACTIVE     = 18
+uint8 EMERGENCY_CHARGE          = 19
+uint8 MANUAL_DOCKING            = 20
+uint8 ROBOT_OPERATION_BEGIN     = 21
+uint8 ROBOT_OPERATION_FINISH    = 22
+uint8 PAUSE                     = 23
+uint8 RESUME                    = 24
+uint8 WAIT_FOR_CONNECT_MASTER   = 25
+uint8 MAPPING                   = 26
+uint8 GO_TO_DOCKING             = 27
+uint8 FULLCHARGE                = 28
+uint8 LOW_BATTERY               = 29
+uint8 BOOTING                   = 30
+#uint8 SHOVE_FREE               = 31
+
+uint8 robot_mode

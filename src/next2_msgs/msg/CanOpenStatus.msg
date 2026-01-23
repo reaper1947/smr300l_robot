@@ -1,0 +1,3 @@
+int64 node_id
+string operation_state
+float64 actual_velocity

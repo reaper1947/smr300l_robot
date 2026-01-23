@@ -1,0 +1,39 @@
+# goal definition
+string SERIAL_SEND = "serial_send"
+string SERIAL_RECEIVE = "serial_receive"
+string TIMER_SET = "timmer_set"
+string CANCEL_ACTION = "cancel_action"
+string SEND_RECEIVE = "send_receive"
+string SEND_REPEATS = "send_repeats"
+string SERIAL_RECEIVE_MULTI = "serial_receive_multi"
+
+string DEVICE_RS485 = "rs485"
+string DEVICE_SERIAL = "serial"
+
+string cmd
+string arg_string
+string arg_sr_send
+string arg_sr_receive
+string[] arg_strings
+bool arg_sr_send_repeats
+int64 arg_int
+int64 timeout
+
+---
+# result definition
+
+uint8 SUCCESS = 0
+uint8 SERIAL_NOT_FOUND = 1
+uint8 TIME_OUT = 2
+ 
+uint8 result
+string text
+string data_bypass
+string cmd 
+uint8 sequence
+
+---
+# feedback definition
+uint8 sequence
+string text
+uint64 timeout

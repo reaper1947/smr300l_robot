@@ -1,0 +1,16 @@
+string cmd
+SeerIO[] condition
+int64 timeout
+---
+#result
+uint8 status
+string text
+uint8[] sequence
+SeerIO[] iostate
+
+---
+#feedback
+uint8 status
+string text
+uint8[] sequence
+SeerIO[] iostate

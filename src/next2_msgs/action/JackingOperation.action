@@ -1,0 +1,21 @@
+string JACK_LOAD=JACK_LOAD
+string JACK_UNLOAD=JACK_UNLOAD
+
+# Goal definition
+string operation
+uint64 speed         # RPM
+uint64 timeout
+
+---
+# Result definition
+uint8[] sequence
+string text
+uint64 timeout
+JackState jack_state
+
+---
+# Feedback definition
+uint8[] sequence
+string text
+uint64 timeout
+JackState jack_state

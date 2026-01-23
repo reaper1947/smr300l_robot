@@ -1,0 +1,19 @@
+# ===== Goal =====
+uint8 FLOOR=0
+uint8 CEILING=1
+uint8 operation       # LOAD or UNLOAD
+int32 speed_rpm       # Signed: + for down, - for up
+builtin_interfaces/Duration timeout
+
+---
+
+# ===== Result =====
+bool success
+string result_text
+JackState final_state
+
+---
+
+# ===== Feedback =====
+string status_text
+JackState current_state

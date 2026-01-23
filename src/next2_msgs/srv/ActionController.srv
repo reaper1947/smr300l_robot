@@ -1,0 +1,18 @@
+string CMD_ACTION_START=action_start
+string CMD_ACTION_KILL=action_kill
+string CMD_ACTION_CANCEL=action_cancel
+
+string AC_AR3_REAR=ar3_rear
+string AC_AR3_FRONT=ar3_front
+
+string AC_MOVEMENT=movement
+
+string cmd
+string action_name
+string arg0
+string arg1
+
+---
+
+bool success
+string message
