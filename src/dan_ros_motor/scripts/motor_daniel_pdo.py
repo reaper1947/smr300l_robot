@@ -43,7 +43,7 @@ class Ros2MotorNode(Node):
         self.lock = threading.Lock()
 
         # Logging
-        ###self.logger = self.get_logger()
+        self.logger = self.get_logger()
 
         # Time
         self.last_time = self.get_clock().now()
@@ -161,7 +161,7 @@ class Ros2MotorNode(Node):
 
     def load_from_json(self, file):
         if not os.path.exists(file):
-            ###self.logger.error(f'No parameter file found')
+            self.logger.error(f'No parameter file found')
             return 0
         with open(self.json_file, 'r') as f:
             data = json.load(f)
@@ -302,7 +302,7 @@ class Ros2MotorNode(Node):
         elif transition == 'Set Raw Speed Mode':
             self.bus.send(can.Message(arbitration_id=0x600 | motor_id, data=[0x2f, 0x20, 0x20, 0x0e, 0xfd, 0xff, 0xff, 0xff], is_extended_id=False))
         else:
-            ###self.logger.error("UNKNOWN TRANSITION")
+            self.logger.error("UNKNOWN TRANSITION")
             sys.exit("UNKNOWN TRANSITION")
 
     def read_id(self, id):
@@ -326,7 +326,7 @@ class Ros2MotorNode(Node):
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             if self.is_heartbeat == False:
-                ###self.logger.error("HEARTBEAT NOT OPERATING")
+                self.logger.error("HEARTBEAT NOT OPERATING")
                 with open(self.filepath, mode='a', newline='\n') as file:
                     writer = csv.writer(file)
                     if not file_exists:
@@ -345,7 +345,7 @@ class Ros2MotorNode(Node):
         self.last_pulse = self.is_heartbeat
 
     def reset_fault(self, motor_id):
-        ###self.logger.warn(f"Attempting to RESET FAULT for Motor ID: {motor_id:X}")
+        self.logger.warn(f"Attempting to RESET FAULT for Motor ID: {motor_id:X}")
 
         # Controlword 0x6040, Sub 00, Data 0x0080
         msg_reset_high = can.Message(arbitration_id=0x600 | motor_id,
@@ -359,7 +359,7 @@ class Ros2MotorNode(Node):
                                   data=[0x2b, 0x40, 0x60, 0x00, 0x06, 0x00, 0x00, 0x00],
                                   is_extended_id=False)
         self.bus.send(msg_reset_low)
-        ###self.logger.info(f"Reset Signal Sent to Motor ID: {motor_id:X}")
+        self.logger.info(f"Reset Signal Sent to Motor ID: {motor_id:X}")
 
     # ----------- Emergency State ----------------------
 
@@ -421,10 +421,10 @@ class Ros2MotorNode(Node):
     #         if self.control_msg_r.arbitration_id == 0x181 and self.control_msg_l.arbitration_id == 0x182:
     #             self.current_state = 'auto_mode_check'
     #         else :
-    #             ###self.logger.error("something wrong")
+    #             self.logger.error("something wrong")
     #             self.disable_motor()
     #     except:
-    #         ###self.logger.error("CAN down?")
+    #         self.logger.error("CAN down?")
 
 # --------- Check Motor Alarm (NEW VERSION) -----------
 
@@ -442,7 +442,7 @@ class Ros2MotorNode(Node):
                 is_fault_l = (status_byte_l & 0x08) != 0
 
                 if is_fault_r or is_fault_l:
-                    ####self.logger.error(f"FAULT DETECTED! Right: {is_fault_r}, Left: {is_fault_l}")
+                    self.logger.error(f"FAULT DETECTED! Right: {is_fault_r}, Left: {is_fault_l}")
 
                     if is_fault_r:
                         self.reset_fault(self.motor_id_right)
@@ -455,10 +455,10 @@ class Ros2MotorNode(Node):
                 else:
                     self.current_state = 'auto_mode_check'
             else:
-                ####self.logger.warn("CAN Read Timeout / No Data")
+                self.logger.warn("CAN Read Timeout / No Data")
                 # self.disable_motor()
         except Exception as e:
-            ####self.logger.error(f"Error in alarm check: {e}")
+            self.logger.error(f"Error in alarm check: {e}")
 
     def disable_motor(self):
         self.motor_transition(self.motor_id_right, 'Shutdown')
@@ -470,20 +470,20 @@ class Ros2MotorNode(Node):
 
     def auto_mode_check(self):
         if self.current_mode != 'Auto':
-            ###self.logger.error(f"Current mode is {self.current_mode}, not Auto Mode")
+            self.logger.error(f"Current mode is {self.current_mode}, not Auto Mode")
             self.disable_motor()
         else:
-            # ###self.logger.info("Auto mode on")
+            # self.logger.info("Auto mode on")
             self.current_state = 'robot_mode_check'
 
     # ----------- Check Nav ------------
 
     def check_robot_mode(self):
         if self.robot_mode != 2 :
-            ###self.logger.error(f"Current robot mode is {self.robot_mode}, not 2")
+            self.logger.error(f"Current robot mode is {self.robot_mode}, not 2")
             self.disable_motor()
         else:
-            # ###self.logger.info("Robot mode 2")
+            # self.logger.info("Robot mode 2")
             self.current_state = 'enable_check'
 
     # ------------ Check Motor Enable ----
@@ -499,12 +499,12 @@ class Ros2MotorNode(Node):
                 status_byte_2 = self.status_msg_l.data[4]
 
                 if status_byte_1 & 2 == False or status_byte_2 & 2 == False:
-                    ###self.logger.error(f"Motor 1 is {status_byte_1 & 2} , Motor 2 is {status_byte_2 & 2}")
+                    self.logger.error(f"Motor 1 is {status_byte_1 & 2} , Motor 2 is {status_byte_2 & 2}")
                     self.enable_motor()
                 else:
                     self.current_state = 'spinning'
         except:
-            # ###self.logger.error("CAN down?")
+            # self.logger.error("CAN down?")
             return 0
 
     def enable_motor(self):
@@ -528,7 +528,7 @@ class Ros2MotorNode(Node):
         rpm = (v / (math.pi * self.wheel_diameter)) * 60
         rpm = rpm * self.gear_ratio
         rpm = min(self.motor_max_spd, rpm)
-        # ###self.logger.info(f"RPM_set = {rpm}")
+        # self.logger.info(f"RPM_set = {rpm}")
         return rpm
 
     def rpm_to_data_frame(self, rpm):
@@ -549,8 +549,8 @@ class Ros2MotorNode(Node):
     def spin_motor(self):
         rpm_l_set = self.cmd_to_rpm(self.v_left)
         rpm_r_set = self.cmd_to_rpm(self.v_right)
-        # ###self.logger.info(f"RPM_set r = {self.v_right}")
-        # ###self.logger.info(f"RPM_set l = {self.v_left}")
+        # self.logger.info(f"RPM_set r = {self.v_right}")
+        # self.logger.info(f"RPM_set l = {self.v_left}")
         data_frame_l = self.rpm_to_data_frame(-1.0*rpm_l_set)
         data_frame_r = self.rpm_to_data_frame(rpm_r_set)
         left_motor_msg = can.Message(arbitration_id=0x600 | self.motor_id_left, data=data_frame_l, is_extended_id=False)
@@ -575,11 +575,11 @@ class Ros2MotorNode(Node):
                 raw_bytes = motor_r.data[0:4]
                 raw_int = int.from_bytes(raw_bytes, byteorder='little', signed=True)
                 self.rpm_r = raw_int * SCALING_FACTOR / self.gear_ratio
-                # ###self.logger.info(f"RPM_get r = {self.rpm_r}")
+                # self.logger.info(f"RPM_get r = {self.rpm_r}")
             else:
-                ###self.logger.error("Error data frame")
+                self.logger.error("Error data frame")
         # else:
-            # ###self.logger.error("No message data")
+            # self.logger.error("No message data")
 
         motor_l = self.read_id([0x182])
         if motor_l:
@@ -587,11 +587,11 @@ class Ros2MotorNode(Node):
                 raw_bytes = motor_l.data[0:4]
                 raw_int = int.from_bytes(raw_bytes, byteorder='little', signed=True)
                 self.rpm_l = raw_int * SCALING_FACTOR * -1.0 / self.gear_ratio
-                # ###self.logger.info(f"RPM_get l = {self.rpm_l}")
+                # self.logger.info(f"RPM_get l = {self.rpm_l}")
             else:
-                ###self.logger.error("Error data frame")
+                self.logger.error("Error data frame")
         # else:
-            # ###self.logger.error("No message data")
+            # self.logger.error("No message data")
 
     def update_odometry(self):
 
@@ -687,11 +687,11 @@ class Ros2MotorNode(Node):
             pulse_get = self.read_id([0x701,0x702])
             self.is_heartbeat = pulse_get.data[0] == 0x05
         except Exception as e:
-            ###self.logger.error(f"except {e}")
+            self.logger.error(f"except {e}")
 
-        # ###self.logger.info(str(self.is_heartbeat))
+        # self.logger.info(str(self.is_heartbeat))
         if self.starting == False and self.is_heartbeat == True:
-            # ###self.logger.info(self.current_state)
+            # self.logger.info(self.current_state)
             if self.current_state == 'init':
                 self.send_start_msg()
             elif self.current_state == 'alarm_check':
