@@ -78,7 +78,7 @@ class UpdateOdom(Node):
         self.bus = can.interface.Bus(interface='socketcan', channel=self.can_device, can_filters=filters)
 
         # Publishers, subscribers, and services
-        self.odom_pub = self.create_publisher(Odometry, "/odom", 10)
+        self.odom_pub = self.create_publisher(Odometry, "/ter/odom", 10)
         self.reset_service = self.create_service(SetBool, "/reset_odom", self.callback_reset_odom)
 
         # TF Broadcaster

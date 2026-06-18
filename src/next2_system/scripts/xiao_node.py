@@ -45,7 +45,7 @@ class SerialSenderNode(Node):
         super().__init__('xiao_node')
 
         # Serial port settings
-        port = '/dev/xiao'
+        port = '/dev/next_xiao'
         baudrate = 115200
         self.timeout_sec = 1.0
 

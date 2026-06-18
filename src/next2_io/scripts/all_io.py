@@ -25,7 +25,8 @@ class DeviceNode(Node):
             self.declare_parameter(name, False, ParameterDescriptor(description=f'Status of {name}'))
 
         # Create client to query parameter values
-        self.client = self.create_client(GetParameters, '/logic_param_node/get_parameters')
+        # self.client = self.create_client(GetParameters, '/logic_param_node/get_parameters')
+        self.client = self.create_client(GetParameters, '/bypass_node')
 
         # Publishers
         self.enble_pub = self.create_publisher(Bool, 'io_heartbeat', 10) # heartbeat
@@ -53,7 +54,7 @@ class DeviceNode(Node):
         # Serial initialization
         try:
             # self.ser = serial.Serial(port='/dev/device_io', baudrate=9600, parity='N', stopbits=1, bytesize=8, timeout=1.0)
-            self.ser = serial.Serial(port='/dev/io', baudrate=9600, parity='N', stopbits=1, bytesize=8, timeout=1.0)
+            self.ser = serial.Serial(port='/dev/next_device_io', baudrate=9600, parity='N', stopbits=1, bytesize=8, timeout=1.0)
             self.get_logger().info("Serial port opened successfully.")
             self.enable_modbus = True
         except serial.SerialException as e:
@@ -213,21 +214,47 @@ class DeviceNode(Node):
             self.set_parameters([Parameter('connected', Parameter.Type.STRING, 'connected')])
             #get data from rqt
             request = GetParameters.Request()
-            request.names = ['io_rqt']
+            request.names = ['bypass']
             future = self.client.call_async(request)
             future.add_done_callback(self.handle_service_response)
         else:
             self.set_parameters([Parameter('connected', Parameter.Type.STRING, 'disconnected')])
 
+    # def handle_service_response(self, future):
+    #     try:
+    #         response = future.result()
+    #         command_rqt = response.values[0].bool_value
+    #         command = command_rqt or self.button_status
+
+    #         print('command', command)
+
+    #         if command:
+    #             self.status = 0x03
+    #         else:
+    #             self.status = 0x00 
+
+    #         # self.set_parameters([
+    #         #     Parameter('mode', Parameter.Type.STRING, 'io readyyyyy' if command else 'unknown')
+    #         # ])
+            
+    #     except Exception as e:
+    #         self.get_logger().warn(f"Failed to handle service response: {e}")
+
     def handle_service_response(self, future):
         try:
             response = future.result()
-            command_rqt = response.values[0].bool_value
-            command = command_rqt or self.button_status
+            if response.values:
+                # 1. ดึงค่าจาก bypass_node
+                command_rqt = response.values[0].bool_value
+                # 2. ตรวจสอบเงื่อนไขร่วมกับปุ่มกด
+                command = command_rqt or self.button_status
 
-            # self.set_parameters([
-            #     Parameter('mode', Parameter.Type.STRING, 'io readyyyyy' if command else 'unknown')
-            # ])
+                # 3. *** เพิ่มส่วนนี้: สั่งให้ Relay ทำงานจริง ***
+                if command:
+                    self.status = 0x03  # เปิด RY1 และ RY2
+                else:
+                    self.status = 0x00  # ปิดทั้งหมด
+                # ---------------------------------------
             
         except Exception as e:
             self.get_logger().warn(f"Failed to handle service response: {e}")

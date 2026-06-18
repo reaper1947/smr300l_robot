@@ -19,13 +19,17 @@ class DiagnosticsCheck(Node):
         self.check_io = self.declare_parameter('check_io', True).value
         io_topic = self.declare_parameter('io_topic', 'io_heartbeat').value
         self.check_lidar = self.declare_parameter('check_lidar', False).value
-        lidar_topic = self.declare_parameter('lidar_topic', 'scan').value
+        lidar_topic = self.declare_parameter('lidar_topic', 'scan').value           # lidar_front_slamkit
         self.check_motor = self.declare_parameter('check_motor', False).value
         motor_topic = self.declare_parameter('motor_topic', 'odom').value
         self.check_cam = self.declare_parameter('check_cam', False).value
         cam_topic = self.declare_parameter('cam_topic', 'point_cloud').value
         self.check_xiao = self.declare_parameter('check_xiao', False).value
         xiao_topic = self.declare_parameter('xiao_topic', 'xiao_heartbeat').value
+        self.check_imu = self.declare_parameter('check_imu', False).value
+        imu_topic = self.declare_parameter('imu_topic', '/imu/data_raw').value
+        self.check_dmx = self.declare_parameter('check_dmx', False).value
+        dmx_topic = self.declare_parameter('dmx_topic', '/dmx_heartbeat').value     # led
 
         # Publisher
         self.diag_pub = self.create_publisher(DiagnosticArray, '/diagnostics', 10)
@@ -39,6 +43,8 @@ class DiagnosticsCheck(Node):
         self.create_subscription(Odometry, motor_topic, self.motor_callback, 10)
         self.create_subscription(PointCloud, cam_topic, self.cam_callback, 10)
         self.create_subscription(Bool, xiao_topic, self.xiao_callback, 10)
+        self.create_subscription(Bool, imu_topic, self.imu_callback, 10)
+        self.create_subscription(Bool, dmx_topic, self.dmx_callback, 10)
 
         # Last message times
         self.last_times = {
@@ -47,9 +53,11 @@ class DiagnosticsCheck(Node):
             "LIDAR_front": None,
             "MOTOR": None,
             "CAM": None,
-            "XIAO": None
+            "XIAO": None,
+            "IMU": None,
+            "DMX": None
         }
-        
+
         self.timer = self.create_timer(0.1, self.pub_diagnostic)
 
         # init
@@ -68,9 +76,10 @@ class DiagnosticsCheck(Node):
         self.msg_device.bms_base    = 1
         self.msg_device.bms_plugin  = 1
         self.msg_device.mcu_1       = 1 # xiao
-        self.msg_device.mcu_2       = 1
+        self.msg_device.mcu_2       = 1 # io
         self.msg_device.motor       = 1
         self.msg_device.zigbee      = 1
+        self.msg_device.dmx         = 1
 
         self.msg_system_ready = Diagnostics()
         self.msg_system_ready.device_state = self.msg_device
@@ -80,23 +89,29 @@ class DiagnosticsCheck(Node):
     def update_time(self, key):
         self.last_times[key] = self.get_clock().now()
 
-    def bms_callback(self, msg): 
+    def bms_callback(self, msg):
         self.update_time("BMS")
 
-    def io_callback(self, msg): 
+    def io_callback(self, msg):
         self.update_time("IO")
 
-    def lidar_callback(self, msg): 
+    def lidar_callback(self, msg):
         self.update_time("LIDAR_front")
 
-    def motor_callback(self, msg): 
+    def motor_callback(self, msg):
         self.update_time("MOTOR")
 
-    def cam_callback(self, msg): 
+    def cam_callback(self, msg):
         self.update_time("CAM")
 
-    def xiao_callback(self, msg): 
+    def xiao_callback(self, msg):
         self.update_time("XIAO")
+
+    def imu_callback(self, msg):
+        self.update_time("IMU")
+
+    def dmx_callback(self, msg):
+        self.update_time("DMX")
 
     def check_timeout(self, name):
         last_time = self.last_times[name]
@@ -187,7 +202,29 @@ class DiagnosticsCheck(Node):
                 self.msg_modern.system_ready = DiagnosticsModern.SYSTEM_READY_STATUS_FAULT
         else:
             self.msg_device.mcu_1 = 1
-    
+
+        if self.get_parameter('check_imu').get_parameter_value().bool_value:
+            status_imu = self.create_status("IMU", "imu_slamkit")
+            self.msg.status.append(status_imu)
+            self.msg_modern.status.append(status_imu)
+            self.msg_device.imu = 0 if status_imu.level == DiagnosticStatus.OK else 2
+            if status_imu.level != DiagnosticStatus.OK:
+                self.msg_system_ready.system_ready = Diagnostics.SYSTEM_READY_STATUS_FAULT
+                self.msg_modern.system_ready = DiagnosticsModern.SYSTEM_READY_STATUS_FAULT
+        else:
+            self.msg_device.imu = 1
+
+        if self.get_parameter('check_dmx').get_parameter_value().bool_value:
+            status_dmx = self.create_status("DMX", "dmx_led")
+            self.msg.status.append(status_dmx)
+            self.msg_modern.status.append(status_dmx)
+            self.msg_device.dmx = 0 if status_dmx.level == DiagnosticStatus.OK else 2
+            if status_dmx.level != DiagnosticStatus.OK:
+                self.msg_system_ready.system_ready = Diagnostics.SYSTEM_READY_STATUS_FAULT
+                self.msg_modern.system_ready = DiagnosticsModern.SYSTEM_READY_STATUS_FAULT
+        else:
+            self.msg_device.dmx = 1
+
     def pub_diagnostic(self):
         self.diagnostics_device()
         if self.get_parameter('use_diagnostics').get_parameter_value().bool_value:

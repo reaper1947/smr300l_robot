@@ -34,15 +34,15 @@ def generate_launch_description():
     robot_mode = Node(package='next2_system', executable='robot_mode.py', name='mode_publisher', output='screen')
     # io_node    = Node(package='next2_io', executable='all_io.py', name='device_io', output='screen')
     dmx_node = Node(package='next2_indicator', executable='indicator_node.py', name='led_indicator', output='screen')
-    # bypass = Node(package='next2_dynamic_parameter', executable='io_logic.py', name='logic_param_node', output='screen')
+    bypass = Node(package='next2_dynamic_parameter', executable='io_logic.py', name='bypass_node', output='screen')
 
     # jack_node = Node(package='dan_ros_motor', executable='jack_action_server.py', name='jack_lift_server', output='screen')
 
     return LaunchDescription([
         OpaqueFunction(function=setup_can_interface),
         robot_mode,
-        # io_node,
         # bypass,
+        # io_node,
         TimerAction(
             period=5.0,
             actions=[
@@ -55,9 +55,9 @@ def generate_launch_description():
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(laser_filter)
                 ),
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(motor_launch_path)
-                ),
+               IncludeLaunchDescription(
+                   PythonLaunchDescriptionSource(motor_launch_path)
+               ),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(di_launch_path)
                 ),
@@ -69,9 +69,10 @@ def generate_launch_description():
                 ),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(urdf_chassis)
-                ),
+                ),   
             ]
         ),
         dmx_node,
+        # bypass,
         #jack_node
     ])

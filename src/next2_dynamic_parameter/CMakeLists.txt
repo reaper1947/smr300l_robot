@@ -11,7 +11,7 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-install(DIRECTORY scripts
+install(DIRECTORY scripts launch
   DESTINATION share/${PROJECT_NAME}/
 )
 

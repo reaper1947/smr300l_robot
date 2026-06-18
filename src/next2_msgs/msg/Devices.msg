@@ -15,3 +15,4 @@ uint8 mcu_1
 uint8 mcu_2
 uint8 motor
 uint8 zigbee
+uint8 dmx
